@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>PunxCreative – Glitch Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    html, body {
+      margin: 0; padding: 0; overflow-x: hidden;
+      font-family: Arial, sans-serif; background: white; color: black;
+    }
+    body {
+      text-align: center; padding-top: 100px;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      position: fixed; top: 0; width: 100%; background: #f8f9fa;
+      padding: 10px 20px; display: flex; justify-content: space-between;
+      align-items: center; box-shadow: 0 1px 6px rgba(0,0,0,0.1); z-index: 10;
+    }
+    .left, .right { display: flex; align-items: center; }
+    .menu { font-size: 24px; cursor: pointer; margin-right: 20px; position: relative; }
+    .menu-dropdown {
+      position: absolute; top: 40px; left: 0;
+      background: white; border: 1px solid #ddd; border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: none; min-width: 160px;
+      text-align: left; z-index: 999;
+    }
+    .menu-dropdown button {
+      background: none; border: none; padding: 10px 16px;
+      width: 100%; text-align: left; cursor: pointer;
+    }
+    .menu-dropdown button:hover {
+      background: #f2f2f2;
+    }
+    .top-links span {
+      margin: 0 10px; cursor: pointer; font-size: 14px;
+    }
+    .top-links .active {
+      background: #e8e8e8; padding: 4px 8px; border-radius: 4px;
+    }
+    .apps { width: 24px; height: 24px; cursor: pointer; }
+    .logo {
+      font-size: 60px; font-weight: bold; letter-spacing: -2px;
+    }
+    .logo span:nth-child(1){color:#4285F4;}
+    .logo span:nth-child(2){color:#EA4335;}
+    .logo span:nth-child(3){color:#FBBC05;}
+    .logo span:nth-child(4){color:#34A853;}
+    .logo span:nth-child(5){color:#EA4335;}
+    .logo span:nth-child(6){color:#4285F4;}
+    .search-box {
+      margin: 20px auto; width: 90%; max-width: 500px;
+      display: flex; align-items: center;
+      border: 1px solid #dcdcdc; border-radius: 24px; padding: 10px 20px;
+    }
+    .search-box input {
+      flex: 1; border: none; outline: none; font-size: 16px;
+    }
+    .icon { width: 24px; height: 24px; cursor: pointer; }
+    .langs {
+      font-size: 13px; margin-top: 20px;
+    }
+    .langs span {
+      color: #1a0dab; cursor: pointer; padding: 0 6px;
+    }
+    #searchingStatus {
+      margin-top: 10px; font-style: italic; font-size: 14px;
+    }
+    .glitchOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 9999; display: none;
+      background: black;
+      animation: glitch-blink 0.15s steps(2,end) infinite, shake 0.1s infinite;
+      backdrop-filter: blur(3px) contrast(180%); pointer-events: none;
+    }
+    @keyframes glitch-blink {
+      0%, 100% { background: white; }
+      50% { background: black; }
+    }
+    @keyframes shake {
+      0%{transform:translate(0,0);} 20%{transform:translate(-3px,2px);}
+      40%{transform:translate(3px,-1px);} 60%{transform:translate(-2px,-3px);}
+      80%{transform:translate(1px,2px);} 100%{transform:translate(0,0);}
+    }
+    body.glitching .glitchOverlay { display: block; }
+    .dark-mode {
+      background: #202124; color: white;
+    }
+    .dark-mode .search-box {
+      background: #303134; border-color: #5f6368;
+    }
+    .trending {
+      margin-top: 30px;
+    }
+    .trending-list {
+      list-style: none;
+      padding-left: 0;
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .trending-list li {
+      padding: 6px 10px;
+      font-size: 14px;
+      color: #1a0dab;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .trending-list li:hover {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left">
+      <div class="menu" onclick="toggleMenu()">☰
+        <div class="menu-dropdown" id="menuDropdown">
+          <button onclick="connect()">🔌 Connect PunxCreative</button>
+        </div>
+      </div>
+      <div class="top-links">
+        <span id="tabAll" class="active" onclick="setTab('all')">All</span>
+        <span id="tabImages" onclick="setTab('images')">Images</span>
+      </div>
+    </div>
+    <div class="right">
+      <svg class="apps" onclick="vibrateESP32()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="20" cy="20" r="10"/><circle cx="50" cy="20" r="10"/>
+        <circle cx="80" cy="20" r="10"/><circle cx="20" cy="50" r="10"/>
+        <circle cx="50" cy="50" r="10"/><circle cx="80" cy="50" r="10"/>
+        <circle cx="20" cy="80" r="10"/><circle cx="50" cy="80" r="10"/>
+        <circle cx="80" cy="80" r="10"/>
+      </svg>
+    </div>
+  </header>
+
+  <div class="logo">
+    <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+  </div>
+
+  <div class="search-box">
+    <img src="https://img.icons8.com/ios-filled/50/search--v1.png" class="icon" onclick="send()"/>
+    <input id="text" placeholder="Search YouTube"/>
+    <img id="micIcon" src="https://img.icons8.com/ios-glyphs/30/microphone.png" class="icon" style="display:none;"/>
+  </div>
+
+  <div id="searchingStatus"></div>
+
+  <div class="langs">
+    Google offered in:
+    <span onclick="setGlitch(true)">Filipino</span>
+    <span onclick="setGlitch(false); clearInput()">Cebuano</span>
+  </div>
+
+  <div class="trending">
+    <p style="margin: 16px 0 6px; font-size: 14px; color: #70757a;">Trending searches</p>
+    <ul class="trending-list">
+      <li onclick="insertSearch('Taylor Swift')">Taylor Swift</li>
+      <li onclick="insertSearch('iPhone 15 Pro')">iPhone 15 Pro</li>
+      <li onclick="insertSearch('Olympics 2025')">Olympics 2025</li>
+      <li onclick="insertSearch('AI Tools')">AI Tools</li>
+      <li onclick="insertSearch('Espresso Recipes')">Espresso Recipes</li>
+    </ul>
+  </div>
+
+  <div class="glitchOverlay" id="glitchOverlay"></div>
+
+  <audio id="glitchSound" preload="auto">
+    <source src="https://cdn.pixabay.com/audio/2022/11/07/audio_f68b4fd8cd.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let bleServer, rxChar, glitchEnabled = false;
+
+    function toggleMenu() {
+      const menu = document.getElementById("menuDropdown");
+      menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+
+    async function connect(){
+      try {
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{name: "PunxCreative"}],
+          optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
+        rxChar = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+        document.getElementById("micIcon").style.display = "inline";
+      } catch(e){
+        alert("Connection failed");
+      }
+    }
+
+    function vibrateESP32(){
+      if(!rxChar) return alert("Connect to PunxCreative first.");
+      const data = new TextEncoder().encode("vibrate");
+      rxChar.writeValue(data);
+    }
+
+    function setTab(tab){
+      document.getElementById("tabAll").classList.remove("active");
+      document.getElementById("tabImages").classList.remove("active");
+      if(tab === "all"){
+        document.body.classList.add("dark-mode");
+        document.getElementById("tabAll").classList.add("active");
+      } else {
+        document.body.classList.remove("dark-mode");
+        document.getElementById("tabImages").classList.add("active");
+      }
+    }
+
+    function setGlitch(enable){
+      glitchEnabled = enable;
+    }
+
+    function insertSearch(text){
+      document.getElementById("text").value = text;
+    }
+
+    function clearInput(){
+      document.getElementById("text").value = "";
+    }
+
+    async function send(){
+      const msg = document.getElementById("text").value;
+      const encoded = encodeURIComponent(msg);
+      const statusEl = document.getElementById("searchingStatus");
+      const glitchAudio = document.getElementById("glitchSound");
+
+      statusEl.textContent = "Searching...";
+      if (rxChar){
+        const data = new TextEncoder().encode(msg);
+        await rxChar.writeValue(data);
+      }
+
+      if (glitchEnabled){
+        document.body.classList.add("glitching");
+        document.getElementById("glitchOverlay").style.display = "block";
+        if (navigator.vibrate) navigator.vibrate(500);
+        glitchAudio.play();
+      }
+
+      setTimeout(() => {
+        document.body.classList.remove("glitching");
+        document.getElementById("glitchOverlay").style.display = "none";
+        statusEl.textContent = "";
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile){
+          window.location.href = `intent://www.youtube.com/results?search_query=${encoded}#Intent;package=com.google.android.youtube;scheme=https;end`;
+        } else {
+          window.open(`https://www.youtube.com/results?search_query=${encoded}`, '_blank');
+        }
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
